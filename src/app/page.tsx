@@ -1,65 +1,138 @@
-import Image from "next/image";
+import { ShoppableImage, ProductTag } from "@/components/ui/ShoppableImage";
+import { supabase } from "@/lib/supabase";
+import Link from "next/link";
+import { ArrowRight, Newspaper, ShoppingBag } from "lucide-react";
 
-export default function Home() {
+async function getFeaturedProject() {
+  const { data: post, error: postError } = await supabase
+    .from('posts') 
+    .select('*')
+    .eq('category', 'marketplace')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .single();
+
+  if (postError || !post) {
+    console.error("Home: Nenhum projeto destaque encontrado.", postError);
+    return null;
+  }
+  const { data: hotspots, error: hotspotsError } = await supabase
+    .from('hotspots')
+    .select(`
+      id,
+      x_position,
+      y_position,
+      products (
+        name,
+        brand,
+        price,
+        image_url
+      )
+    `)
+    .eq('project_id', post.id);
+
+  if (hotspotsError) {
+    console.error("Home: Erro ao buscar hotspots.", hotspotsError);
+    return null;
+  }
+
+  const formattedTags: ProductTag[] = hotspots.map((h: any) => ({
+    id: h.id,
+    x: h.x_position,
+    y: h.y_position,
+    product: {
+      name: h.products.name,
+      brand: h.products.brand,
+      price: h.products.price,
+      image_url: h.products.image_url,
+      link: '#' 
+    }
+  }));
+
+  return { post, formattedTags };
+}
+
+export const revalidate = 0; 
+
+export default async function Home() {
+  const data = await getFeaturedProject();
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="min-h-screen bg-white font-sans">
+      
+      <section className="p-4 md:p-8 bg-gray-50">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <span className="text-emerald-600 font-bold text-xs uppercase tracking-wider">Destaque da Semana</span>
+              <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 mt-1">
+                {data ? data.post.title : "Bem-vindo à Habitare"}
+              </h1>
+            </div>
+            {data && (
+              <Link 
+                href={`/projeto/${data.post.slug}`} 
+                className="hidden md:flex items-center gap-2 text-sm font-bold border-b-2 border-black hover:text-emerald-600 hover:border-emerald-600 transition"
+              >
+                Ver Projeto Completo <ArrowRight size={16}/>
+              </Link>
+            )}
+          </div>
+          {data ? (
+            <div className="border-4 border-black rounded-2xl p-2 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] bg-white relative">
+              <ShoppableImage 
+                imageUrl={data.post.main_image_url}
+                alt={data.post.title}
+                tags={data.formattedTags}
+              />
+              <div className="absolute top-6 right-6 bg-white/90 backdrop-blur px-4 py-2 rounded-full text-xs font-bold animate-pulse shadow-sm">
+                Toque nos produtos 👆
+              </div>
+            </div>
+          ) : (
+            <div className="h-64 bg-gray-200 rounded-2xl flex items-center justify-center flex-col gap-2 text-gray-500">
+              <p>Nenhum projeto de Marketplace encontrado.</p>
+              <p className="text-xs">Cadastre um post com category='marketplace' no Supabase.</p>
+            </div>
+          )}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      <section className="py-16 px-4 md:px-8 max-w-7xl mx-auto">
+        <h2 className="text-2xl font-bold mb-8 text-center">O que você procura hoje?</h2>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Link href="/marketplace" className="group block">
+            <div className="bg-white border border-gray-200 rounded-2xl p-8 hover:shadow-xl transition duration-300 hover:border-emerald-500 relative overflow-hidden">
+              <div className="relative z-10">
+                <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-600 mb-4 group-hover:scale-110 transition">
+                  <ShoppingBag size={24} />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">Marketplace</h3>
+                <p className="text-gray-500">
+                  Inspire-se em projetos de arquitetos renomados e explore os produtos usados na decoração com um clique.
+                </p>
+              </div>
+              <div className="absolute right-0 top-0 w-32 h-32 bg-emerald-50 rounded-bl-full -mr-10 -mt-10 transition-transform group-hover:scale-150 z-0 opacity-50"></div>
+            </div>
+          </Link>
+          <Link href="/noticias" className="group block">
+            <div className="bg-white border border-gray-200 rounded-2xl p-8 hover:shadow-xl transition duration-300 hover:border-blue-500 relative overflow-hidden">
+              <div className="relative z-10">
+                 <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600 mb-4 group-hover:scale-110 transition">
+                  <Newspaper size={24} />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">Blog & Notícias</h3>
+                <p className="text-gray-500">
+                  Fique por dentro das tendências de design, cobertura de eventos e artigos exclusivos da redação.
+                </p>
+              </div>
+               <div className="absolute right-0 top-0 w-32 h-32 bg-blue-50 rounded-bl-full -mr-10 -mt-10 transition-transform group-hover:scale-150 z-0 opacity-50"></div>
+            </div>
+          </Link>
         </div>
-      </main>
-    </div>
+      </section>
+
+    </main>
   );
 }
