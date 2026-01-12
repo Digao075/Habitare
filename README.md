@@ -1,36 +1,24 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Habitare: Shoppable Design Ecosystem 🛋️
 
-## Getting Started
+Habitare is a modern Design Marketplace designed to bridge the gap between architectural inspiration and the final purchase. Traditionally, design content generates high interest on platforms like Pinterest, but that "purchase desire" is often lost when users have to find products manually. Habitare solves this by turning content into a transactional platform.
 
-First, run the development server:
+## 🚀 Key Value Propositions
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+* Shoppable Content Engine: Interactive "Hotspots" allow users to purchase furniture directly from high-resolution project images.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+* Automated Split-Payments: A financial motor that automatically divides revenue between the Brand (80%), Habitare (15%), and the Curating Architect (5%) at the moment of checkout.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+* Hybrid Content Architecture: A system that preserves legacy SEO-driven blog posts while enabling modern, shoppable marketplace features.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🛠️ Technical Stack
+*Frameworks: Next.js
+*Language: TypeScript
+*Database: PostgreSQL
 
-## Learn More
+## 🧠 Engineering Highlights
+*Next.js 15 Migration: Navigated the transition to asynchronous params in dynamic routing to ensure future-proof performance.
 
-To learn more about Next.js, take a look at the following resources:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+*Scalable Architecture: Implemented a serverless infrastructure where costs scale proportionally with traffic, ensuring 99.9% availability during traffic spikes.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Complex Data Modeling: Designed a relational database schema in Supabase to manage many-to-many relationships between projects, architects, and multi-vendor product catalogs.
